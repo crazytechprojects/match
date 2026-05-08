@@ -1,0 +1,26 @@
+services:
+  fastapi-app:
+    container_name: fastapi-app
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/home/app
+    environment:
+      ENV_NAME: ${ENV_NAME}
+      MIDDLEWARE_SECRET: ${MIDDLEWARE_SECRET}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - mainnetwork
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+networks:
+  mainnetwork:
+    name: mainnetwork
+volumes:
+  stored-data:
