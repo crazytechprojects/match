@@ -1,0 +1,21 @@
+services:
+  js-app:
+    container_name: js-app
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/home/app
+      - /home/app/node_modules
+    environment:
+      VITE_ENV_NAME: ${ENV_NAME}
+    networks:
+      - mainnetwork
+    command: ["npm", "run", "dev"]
+
+
+networks:
+  mainnetwork:
+    name: mainnetwork
+volumes:
+  stored-data:

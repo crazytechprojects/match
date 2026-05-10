@@ -24,14 +24,19 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
+async def signup(db: AsyncSession, email: str, password: str) -> User:
+    name = email.split("@")[0]
+    user = User(name=name, email=email, password=hash_password(password))
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
+async def login(db: AsyncSession, email: str) -> User | None:
     result = await db.execute(select(User).where(User.email == email))
     return result.scalar_one_or_none()
 
 
-async def create_user(db: AsyncSession, email: str, password: str) -> User:
-    user = User(email=email, password=hash_password(password))
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
+async def get_me(user: User) -> User:
     return user

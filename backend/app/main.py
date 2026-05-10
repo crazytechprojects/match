@@ -11,11 +11,15 @@ from contextlib import asynccontextmanager
 
 from routers import main_api
 from routers import auth
+from routers import profile
+from routers import conversation
+from routers import agent
 from core.logger import logger
 from core.constants import *
 from dependencies.database import engine
 from models.base import Base
 import models.user  # noqa: F401
+import models.conversation  # noqa: F401
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -38,7 +42,7 @@ async def lifespan(app: FastAPI):
 docs_url = None
 redoc_url = None
 app = FastAPI(
-    name="Resumera Internal API",
+    name="Matchwise API",
     docs_url=docs_url,
     redoc_url=redoc_url,
     lifespan=lifespan,
@@ -61,6 +65,9 @@ app.add_middleware(SessionMiddleware, secret_key=middleware_creds["secret_key"])
 
 app.include_router(main_api.router)
 app.include_router(auth.router)
+app.include_router(profile.router)
+app.include_router(conversation.router)
+app.include_router(agent.router)
 
 
 origins = []
@@ -82,10 +89,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# @app.get("/")
-# async def main_func():
-#     return {"APP": "RESUMERA"}
 
 
 @app.get("/health")

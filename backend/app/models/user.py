@@ -1,6 +1,6 @@
 import uuid
-from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import String, Boolean, Integer, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from models.base import Base
@@ -16,3 +16,16 @@ class User(Base):
         String(320), unique=True, nullable=False, index=True
     )
     password: Mapped[str] = mapped_column(String(128), nullable=False)
+
+    name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    gender: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    match_gender: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    age_range_min: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    age_range_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    self_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    match_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    onboarded: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    conversations = relationship(
+        "ConversationParticipant", back_populates="user", lazy="selectin"
+    )

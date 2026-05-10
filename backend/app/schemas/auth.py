@@ -19,3 +19,7 @@ class AuthResponse(BaseModel):
 class UserOut(BaseModel):
     id: str
     email: str
+    name: str | None = None
+    onboarded: bool = False
+
+    model_config = {"from_attributes": True}
