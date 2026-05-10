@@ -5,13 +5,12 @@ from core.logger import logger
 from dependencies.database import get_db
 from dependencies.auth import get_current_user
 from models.user import User
-from schemas.agent import AgentStatusOut
 from services.agent import get_agent_status as get_agent_status_service
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
 
-@router.get("/status", response_model=AgentStatusOut)
+@router.get("/status")
 async def get_agent_status(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),

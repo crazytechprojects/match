@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,19 +13,13 @@ from models.conversation import (
     Message,
     MessageSenderType,
 )
-from schemas.conversation import (
-    ConversationSummary,
-    ConversationDetail,
-    ConversationListResponse,
-    MessageOut,
-)
 
 
 async def list_conversations(
     db: AsyncSession,
     user: User,
     status_filter: str | None = None,
-) -> ConversationListResponse:
+) -> dict:
     base_query = (
         select(ConversationParticipant)
         .where(ConversationParticipant.user_id == user.id)
@@ -58,37 +52,35 @@ async def list_conversations(
         match_user = _get_other_user(convo, user.id)
         last_msg = convo.messages[-1] if convo.messages else None
 
-        summaries.append(
-            ConversationSummary(
-                id=str(convo.id),
-                status=user_status,
-                match_name=match_user.name if match_user else None,
-                match_age=None,
-                match_gender=match_user.gender if match_user else None,
-                last_message=last_msg.text if last_msg else None,
-                last_message_time=last_msg.created_at if last_msg else None,
-                unread=False,
-                human_chat_started=convo.human_chat_started,
-                message_count=len(convo.messages),
-            )
-        )
+        summaries.append({
+            "id": str(convo.id),
+            "status": user_status,
+            "match_name": match_user.name if match_user else None,
+            "match_age": None,
+            "match_gender": match_user.gender if match_user else None,
+            "last_message": last_msg.text if last_msg else None,
+            "last_message_time": last_msg.created_at if last_msg else None,
+            "unread": False,
+            "human_chat_started": convo.human_chat_started,
+            "message_count": len(convo.messages),
+        })
 
-    summaries.sort(key=lambda s: s.last_message_time or datetime.min, reverse=True)
+    summaries.sort(key=lambda s: s["last_message_time"] or datetime.min, reverse=True)
 
-    return ConversationListResponse(
-        conversations=summaries,
-        total=len(participations),
-        green_count=counts["green"],
-        yellow_count=counts["yellow"],
-        red_count=counts["red"],
-    )
+    return {
+        "conversations": summaries,
+        "total": len(participations),
+        "green_count": counts["green"],
+        "yellow_count": counts["yellow"],
+        "red_count": counts["red"],
+    }
 
 
 async def get_conversation(
     db: AsyncSession,
     user: User,
     conversation_id: str,
-) -> ConversationDetail | None:
+) -> dict | None:
     result = await db.execute(
         select(ConversationParticipant)
         .where(
@@ -123,25 +115,23 @@ async def get_conversation(
         else:
             sender_type = "my-agent" if msg.sender_user_id == user.id else "their-agent"
 
-        messages_out.append(
-            MessageOut(
-                id=str(msg.id),
-                sender_type=sender_type,
-                text=msg.text,
-                is_ai=msg.is_ai,
-                created_at=msg.created_at,
-            )
-        )
+        messages_out.append({
+            "id": str(msg.id),
+            "sender_type": sender_type,
+            "text": msg.text,
+            "is_ai": msg.is_ai,
+            "created_at": msg.created_at,
+        })
 
-    return ConversationDetail(
-        id=str(convo.id),
-        status=participation.status.value,
-        match_name=match_user.name if match_user else None,
-        match_age=None,
-        match_gender=match_user.gender if match_user else None,
-        human_chat_started=convo.human_chat_started,
-        messages=messages_out,
-    )
+    return {
+        "id": str(convo.id),
+        "status": participation.status.value,
+        "match_name": match_user.name if match_user else None,
+        "match_age": None,
+        "match_gender": match_user.gender if match_user else None,
+        "human_chat_started": convo.human_chat_started,
+        "messages": messages_out,
+    }
 
 
 async def post_message(
@@ -149,7 +139,7 @@ async def post_message(
     user: User,
     conversation_id: str,
     text: str,
-) -> MessageOut | None:
+) -> dict | None:
     result = await db.execute(
         select(ConversationParticipant)
         .where(
@@ -183,13 +173,13 @@ async def post_message(
     await db.commit()
     await db.refresh(message)
 
-    return MessageOut(
-        id=str(message.id),
-        sender_type="human-self",
-        text=message.text,
-        is_ai=False,
-        created_at=message.created_at,
-    )
+    return {
+        "id": str(message.id),
+        "sender_type": "human-self",
+        "text": message.text,
+        "is_ai": False,
+        "created_at": message.created_at,
+    }
 
 
 def _get_other_user(

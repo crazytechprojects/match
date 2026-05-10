@@ -3,10 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user import User
 from models.conversation import ConversationParticipant
-from schemas.agent import AgentStatusOut
 
 
-async def get_agent_status(db: AsyncSession, user: User) -> AgentStatusOut:
+async def get_agent_status(db: AsyncSession, user: User) -> dict:
     result = await db.execute(
         select(
             ConversationParticipant.status,
@@ -26,11 +25,11 @@ async def get_agent_status(db: AsyncSession, user: User) -> AgentStatusOut:
     is_active = user.onboarded
     agent_status = "active" if is_active else "setup_required"
 
-    return AgentStatusOut(
-        is_active=is_active,
-        status=agent_status,
-        total_conversations=total,
-        green_count=counts["green"],
-        yellow_count=counts["yellow"],
-        red_count=counts["red"],
-    )
+    return {
+        "is_active": is_active,
+        "status": agent_status,
+        "total_conversations": total,
+        "green_count": counts["green"],
+        "yellow_count": counts["yellow"],
+        "red_count": counts["red"],
+    }

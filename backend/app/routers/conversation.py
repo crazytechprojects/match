@@ -5,12 +5,7 @@ from core.logger import logger
 from dependencies.database import get_db
 from dependencies.auth import get_current_user
 from models.user import User
-from schemas.conversation import (
-    ConversationListResponse,
-    ConversationDetail,
-    SendMessageRequest,
-    MessageOut,
-)
+from schemas.conversation import SendMessageRequest
 from services.conversation import (
     list_conversations as list_conversations_service,
     get_conversation as get_conversation_service,
@@ -22,7 +17,7 @@ router = APIRouter(prefix="/conversations", tags=["conversations"])
 VALID_STATUSES = {"green", "yellow", "red"}
 
 
-@router.get("/list", response_model=ConversationListResponse)
+@router.get("/list")
 async def list_conversations(
     status: str | None = Query(
         None, description="Filter by status: green, yellow, red"
@@ -47,7 +42,7 @@ async def list_conversations(
         )
 
 
-@router.get("/{conversation_id}", response_model=ConversationDetail)
+@router.get("/{conversation_id}")
 async def get_conversation(
     conversation_id: str,
     current_user: User = Depends(get_current_user),
@@ -71,7 +66,7 @@ async def get_conversation(
         )
 
 
-@router.post("/{conversation_id}/messages", response_model=MessageOut)
+@router.post("/{conversation_id}/messages")
 async def post_message(
     conversation_id: str,
     body: SendMessageRequest,
