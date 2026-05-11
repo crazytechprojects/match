@@ -3,10 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Matchwise — AI-Powered Matchmaking</title>
+    <title>AgentsMatch — AI matchmaking</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      body[data-agent-bubble="tinted"] .msg-bubble.agent-a { background: rgba(232,117,96,.07); border-color: rgba(232,117,96,.22); }
+      body[data-agent-bubble="tinted"] .msg-bubble.agent-b { background: rgba(232,117,96,.13); border-color: rgba(232,117,96,.30); }
+      body[data-grain="off"]::before { display: none !important; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

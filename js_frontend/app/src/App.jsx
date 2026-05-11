@@ -1,18 +1,17 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Onboarding from "./pages/Onboarding";
+import Auth from "./pages/Auth";
+import CreateAgent from "./pages/CreateAgent";
 import Dashboard from "./pages/Dashboard";
-import Chat from "./pages/Chat";
-import Profile from "./pages/Profile";
+import Conversation from "./pages/Conversation";
+import { ProfilePage, AgentPage, Billing } from "./pages/Settings";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, requireOnboarded = true }) {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
-  if (!user.onboarded) return <Navigate to="/onboarding" replace />;
+  if (!user) return <Navigate to="/" replace />;
+  if (requireOnboarded && !user.onboarded) return <Navigate to="/onboarding" replace />;
   return children;
 }
 
@@ -27,47 +26,13 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
-      <Route
-        path="/login"
-        element={
-          <AuthRoute>
-            <Login />
-          </AuthRoute>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <AuthRoute>
-            <Signup />
-          </AuthRoute>
-        }
-      />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/chat/:id"
-        element={
-          <ProtectedRoute>
-            <Chat />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/auth" element={<AuthRoute><Auth /></AuthRoute>} />
+      <Route path="/onboarding" element={<ProtectedRoute requireOnboarded={false}><CreateAgent /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/chat/:id" element={<ProtectedRoute><Conversation /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/agent" element={<ProtectedRoute><AgentPage /></ProtectedRoute>} />
+      <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

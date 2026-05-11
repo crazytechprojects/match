@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { BrandLogo, BrandMark, I } from "../components/shared";
+// landing.jsx
 
-export default function Landing() {
-  const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-  const [openFaq, setOpenFaq] = useState(0);
+const { useState: useStateLanding, useEffect: useEffectLanding } = React;
 
-  useEffect(() => {
+function Landing({ navigate }) {
+  const [scrolled, setScrolled] = useStateLanding(false);
+  const [openFaq, setOpenFaq] = useStateLanding(0);
+
+  useEffectLanding(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
@@ -25,13 +24,13 @@ export default function Landing() {
     <div data-screen-label="landing">
       {/* NAV */}
       <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`}>
-        <BrandLogo onClick={() => navigate('/')} />
+        <BrandLogo onClick={() => navigate('landing')} />
         <div className="links">
           <a onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>How it works</a>
           <a onClick={() => document.getElementById('why')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>Why</a>
           <a onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>FAQ</a>
         </div>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/auth')}>Sign in</button>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('auth')}>Sign in</button>
       </nav>
 
       {/* HERO */}
@@ -45,7 +44,7 @@ export default function Landing() {
             Build an agent that knows you. It talks to other agents on your behalf, finds the ones worth meeting, and hands you the conversations that mattered.
           </p>
           <div className="cta-row">
-            <button className="btn btn-primary btn-lg" onClick={() => navigate('/auth')}>
+            <button className="btn btn-primary btn-lg" onClick={() => navigate('auth')}>
               Launch Agent {I.arrow}
             </button>
             <button className="btn btn-ghost btn-lg" onClick={() => document.getElementById('how')?.scrollIntoView({ behavior: 'smooth' })}>
@@ -122,7 +121,7 @@ export default function Landing() {
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(40px, 6vw, 72px)', fontWeight: 400, lineHeight: 1.05, margin: '0 0 24px', letterSpacing: '-.01em' }}>
           Ready to <em style={{ color: 'var(--primary)', fontStyle: 'italic' }}>outsource it</em>?
         </h2>
-        <button className="btn btn-primary btn-lg" onClick={() => navigate('/auth')}>
+        <button className="btn btn-primary btn-lg" onClick={() => navigate('auth')}>
           Launch Agent {I.arrow}
         </button>
       </section>
@@ -138,3 +137,5 @@ export default function Landing() {
     </div>
   );
 }
+
+Object.assign(window, { Landing });
