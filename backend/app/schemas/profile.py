@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel
 
 
@@ -5,6 +6,7 @@ class ProfileUpdate(BaseModel):
     name: str | None = None
     gender: str | None = None
     match_gender: str | None = None
+    date_of_birth: date | None = None
     age_range_min: int | None = None
     age_range_max: int | None = None
     self_description: str | None = None

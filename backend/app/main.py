@@ -32,7 +32,13 @@ async def lifespan(app: FastAPI):
         logger.info("Database tables created")
     else:
         logger.warning("No database configured")
+
+    from services.worker import start_worker, stop_worker
+
+    start_worker()
     yield
+    stop_worker()
+
     if engine is not None:
         await engine.dispose()
 

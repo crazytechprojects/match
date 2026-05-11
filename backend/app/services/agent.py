@@ -23,12 +23,18 @@ async def get_agent_status(db: AsyncSession, user: User) -> dict:
         total += count
 
     is_active = user.onboarded
-    agent_status = "active" if is_active else "setup_required"
+    if not is_active:
+        agent_status = "setup_required"
+    elif counts["active"] > 0:
+        agent_status = "chatting"
+    else:
+        agent_status = "idle"
 
     return {
         "is_active": is_active,
         "status": agent_status,
         "total_conversations": total,
+        "active_count": counts["active"],
         "green_count": counts["green"],
         "yellow_count": counts["yellow"],
         "red_count": counts["red"],

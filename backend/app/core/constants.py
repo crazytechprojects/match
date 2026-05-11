@@ -23,3 +23,16 @@ DATABASE_URL = (
 JWT_SECRET = getenv("JWT_SECRET", "")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_MINUTES = 180
+
+archia_creds = {
+    "base_url": getenv("ARCHIA_BASE_URL", ""),
+    "token": getenv("ARCHIA_TOKEN", ""),
+}
+
+ARCHIA_CHAT_AGENT = getenv("ARCHIA_CHAT_AGENT", "agent:find-match-agent")
+ARCHIA_EVAL_AGENT = getenv("ARCHIA_EVAL_AGENT", "agent:find-match-eval-agent")
+
+AGENT_MESSAGE_LIMIT = int(getenv("AGENT_MESSAGE_LIMIT", "10"))
+WORKER_INTERVAL_SECONDS = int(getenv("WORKER_INTERVAL_SECONDS", "30"))
+MAX_CONCURRENT_CONVERSATIONS = int(getenv("MAX_CONCURRENT_CONVERSATIONS", "5"))
+MAX_ACTIVE_CONVERSATIONS_PER_USER = int(getenv("MAX_ACTIVE_CONVERSATIONS_PER_USER", "10"))

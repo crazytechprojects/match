@@ -43,6 +43,9 @@ async def list_conversations(
         convo = p.conversation
         user_status = p.status.value
 
+        if user_status == "active":
+            continue
+
         if user_status in counts:
             counts[user_status] += 1
 

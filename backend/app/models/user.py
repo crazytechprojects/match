@@ -1,5 +1,6 @@
 import uuid
-from sqlalchemy import String, Boolean, Integer, Text
+from datetime import date
+from sqlalchemy import String, Boolean, Integer, Text, Date
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -24,6 +25,7 @@ class User(Base):
     age_range_max: Mapped[int | None] = mapped_column(Integer, nullable=True)
     self_description: Mapped[str | None] = mapped_column(Text, nullable=True)
     match_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
     onboarded: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     conversations = relationship(

@@ -14,6 +14,8 @@ services:
       DB_HOST: ${DB_HOST}
       DB_NAME: ${DB_NAME}
       JWT_SECRET: ${JWT_SECRET}
+      ARCHIA_BASE_URL: ${ARCHIA_BASE_URL}
+      ARCHIA_TOKEN: ${ARCHIA_TOKEN}
     networks:
       - mainnetwork
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

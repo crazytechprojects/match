@@ -1,56 +1,74 @@
-import { useState } from "react";
-import { BACKEND_API_ENDPOINT } from "./constants";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Landing from "./pages/Landing";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Onboarding from "./pages/Onboarding";
+import Dashboard from "./pages/Dashboard";
+import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
 
-function App() {
-  const [name, setName] = useState("");
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleGreet = async () => {
-    if (!name.trim()) return;
-
-    setLoading(true);
-    setResult(null);
-    setError(null);
-
-    try {
-      const response = await fetch(`${BACKEND_API_ENDPOINT}/jobs/greet`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-
-      if (!response.ok) throw new Error(`Request failed (${response.status})`);
-
-      const data = await response.json();
-      setResult(data.name);
-    } catch (err) {
-      setError(`Failed to reach the backend: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="container">
-      <h1>Greeting App</h1>
-      <div className="form">
-        <input
-          type="text"
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleGreet()}
-        />
-        <button onClick={handleGreet} disabled={loading || !name.trim()}>
-          {loading ? "Loading..." : "Greet"}
-        </button>
-      </div>
-      {result && <div className="message success">{result}</div>}
-      {error && <div className="message error">{error}</div>}
-    </div>
-  );
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.onboarded) return <Navigate to="/onboarding" replace />;
+  return children;
 }
 
-export default App;
+function AuthRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user && user.onboarded) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route
+        path="/login"
+        element={
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <AuthRoute>
+            <Signup />
+          </AuthRoute>
+        }
+      />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat/:id"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
