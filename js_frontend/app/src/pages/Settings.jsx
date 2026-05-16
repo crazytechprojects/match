@@ -99,17 +99,56 @@ export function ProfilePage() {
 // ───────── Agent specs page ─────────
 export function AgentPage() {
   const navigate = useNavigate();
-  const { user, token } = useAuth();
+  const { user, token, updateProfile } = useAuth();
   const [agentStatus, setAgentStatus] = useState(null);
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   const isNew = !user?.onboarded;
   const agentName = localStorage.getItem("agentsmatch_agent_name") || user?.name || "Your agent";
+
+  const [gender, setGender] = useState(user?.gender || "");
+  const [dob, setDob] = useState(user?.date_of_birth || "");
+  const [selfDesc, setSelfDesc] = useState(user?.self_description || "");
+  const [matchDesc, setMatchDesc] = useState(user?.match_description || "");
+
+  useEffect(() => {
+    if (user) {
+      setGender(user.gender || "");
+      setDob(user.date_of_birth || "");
+      setSelfDesc(user.self_description || "");
+      setMatchDesc(user.match_description || "");
+    }
+  }, [user]);
 
   useEffect(() => {
     if (token) {
       api.getAgentStatus(token).then(setAgentStatus).catch(() => {});
     }
   }, [token]);
+
+  const handleSave = async () => {
+    setError("");
+    setSaving(true);
+    try {
+      await updateProfile({
+        name: user?.name,
+        gender: gender,
+        matchGender: user?.match_gender,
+        dateOfBirth: dob || undefined,
+        ageRange: [user?.age_range_min ?? 18, user?.age_range_max ?? 80],
+        selfDescription: selfDesc,
+        matchDescription: matchDesc,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2400);
+    } catch (err) {
+      setError(err.message || "Failed to save.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (isNew) {
     return (
@@ -143,11 +182,8 @@ export function AgentPage() {
       <div className="page-head">
         <div>
           <h1 className="page-title">Your <em>agent.</em></h1>
-          <p className="page-sub">The brief you handed your agent. Edit any of it; changes apply to new conversations.</p>
+          <p className="page-sub">Edit your agent's brief. Changes apply to new conversations.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => navigate("/onboarding?mode=edit")}>
-          Edit agent {I.arrow}
-        </button>
       </div>
 
       <div className="section-card" style={{ display: "flex", gap: 24, alignItems: "center", marginBottom: 22 }}>
@@ -168,31 +204,60 @@ export function AgentPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 22 }}>
-        <div className="section-card">
-          <h3>You</h3>
-          <p className="desc">How your agent describes you.</p>
-          <div className="kv" style={{ marginBottom: 18 }}>
-            <div className="k">Gender</div><div className="v">{capitalize(user?.gender)}</div>
-            <div className="k">Born</div><div className="v">{user?.date_of_birth || "—"}</div>
+      <div className="section-card">
+        <h3>You</h3>
+        <p className="desc">How your agent describes you. Edit any field and hit save.</p>
+
+        {error && (
+          <div style={{ padding: '10px 14px', marginBottom: 14, borderRadius: 8, background: 'rgba(255,60,60,.08)', border: '1px solid rgba(255,60,60,.18)', color: '#ff6b6b', fontSize: 13.5 }}>
+            {error}
           </div>
-          <div className="label">Self-portrait</div>
-          <p style={{ color: "var(--text-muted)", whiteSpace: "pre-wrap", fontSize: 14.5, lineHeight: 1.55, margin: 0 }}>
-            {user?.self_description || <em>None yet.</em>}
-          </p>
+        )}
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
+          <div>
+            <label className="label">Gender</label>
+            <select className="input" value={gender} onChange={e => setGender(e.target.value)} style={{ cursor: "pointer" }}>
+              <option value="">—</option>
+              <option value="woman">Woman</option>
+              <option value="man">Man</option>
+            </select>
+          </div>
+          <div>
+            <label className="label">Date of birth</label>
+            <input className="input" type="date" value={dob} onChange={e => setDob(e.target.value)} />
+          </div>
         </div>
 
-        <div className="section-card">
-          <h3>Them</h3>
-          <p className="desc">The brief for who your agent looks for.</p>
-          <div className="kv" style={{ marginBottom: 18 }}>
-            <div className="k">Gender</div><div className="v">{capitalize(user?.match_gender)}</div>
-            <div className="k">Age range</div><div className="v">{ageMin}–{ageMax}{ageMax === 80 ? "+" : ""}</div>
-          </div>
-          <div className="label">Looking for</div>
-          <p style={{ color: "var(--text-muted)", whiteSpace: "pre-wrap", fontSize: 14.5, lineHeight: 1.55, margin: 0 }}>
-            {user?.match_description || <em>None yet.</em>}
-          </p>
+        <div style={{ marginBottom: 18 }}>
+          <label className="label">Self-portrait</label>
+          <textarea
+            className="textarea"
+            rows={5}
+            placeholder="Describe yourself — looks, voice, taste, temperament..."
+            value={selfDesc}
+            onChange={e => setSelfDesc(e.target.value)}
+          />
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>{selfDesc.length} characters</div>
+        </div>
+
+        <div style={{ marginBottom: 18 }}>
+          <label className="label">Who you'd like to meet</label>
+          <textarea
+            className="textarea"
+            rows={5}
+            placeholder="Describe who you're looking for — personality, taste, deal-breakers..."
+            value={matchDesc}
+            onChange={e => setMatchDesc(e.target.value)}
+          />
+          <div style={{ fontSize: 12, color: "var(--text-dim)", marginTop: 4 }}>{matchDesc.length} characters</div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving} style={saving ? { opacity: 0.6, cursor: "not-allowed" } : {}}>
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+          {saved && <span style={{ color: "var(--green)", fontSize: 13 }}>{I.check} Saved</span>}
         </div>
       </div>
     </AppShell>

@@ -93,8 +93,8 @@ export default function CreateAgent({ mode = 'create' }) {
       <>
         <h2 className="wizard-q">You are <em>a…</em></h2>
         <p className="wizard-hint">Used to build your agent's voice and presentation.</p>
-        <div className="choice-grid cols-3">
-          {['Woman', 'Man', 'Non-binary'].map(g => (
+        <div className="choice-grid cols-2">
+          {['Woman', 'Man'].map(g => (
             <button key={g} className={`choice ${data.yourGender === g ? 'selected' : ''}`} onClick={() => update('yourGender', g)}>
               <span className="checkdot"></span> {g}
             </button>
@@ -107,7 +107,7 @@ export default function CreateAgent({ mode = 'create' }) {
         <h2 className="wizard-q">You'd like to meet <em>a…</em></h2>
         <p className="wizard-hint">Your agent will only talk to agents who match this.</p>
         <div className="choice-grid cols-2">
-          {['Woman', 'Man', 'Non-binary', 'Anyone'].map(g => (
+          {['Woman', 'Man', 'Anyone'].map(g => (
             <button key={g} className={`choice ${data.theirGender === g ? 'selected' : ''}`} onClick={() => update('theirGender', g)}>
               <span className="checkdot"></span> {g}
             </button>

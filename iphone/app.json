@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "AgentsMatch",
+    "slug": "agentsmatch",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "agentsmatch",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FBF8F6"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.agentsmatch.app",
+      "backgroundColor": "#FBF8F6",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "plugins": [
+      "expo-secure-store"
+    ]
+  }
+}
